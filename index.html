@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommandation de Jobs</title>
+
+    <!-- Lien vers Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEJp03ps3sJfFujxK1KRf6tOBX6vF9kz2E44Zx6SzOx2jSAj2h5Ckp4XnX2Rl" crossorigin="anonymous">
+
+    <!-- CSS personnalisé -->
+    <style>
+        body {
+            background-color:black; /* Fond léger */
+            font-family: Arial, sans-serif;
+            height: 100vh; /* Prend toute la hauteur de la fenêtre */
+            display: flex;
+            justify-content: center; /* Centre horizontalement */
+            align-items: center; /* Centre verticalement */
+            margin: 0;
+        background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbrHywuWVnBTV9KnvJ1S6zf7ZAPXXaXrlLhw&s'); /* Remplacer par l'URL de votre image */
+            background-size: cover; /* Couvre tout l'écran */
+            background-position: center; /* Centre l'image */
+            background-repeat: no-repeat; /* Évite la répétition de l'image */
+            font-family: Arial, sans-serif;
+            height: 100vh; /* Prend toute la hauteur de la fenêtre */
+            display: flex;
+            justify-content: center; /* Centre horizontalement */
+            align-items: center; /* Centre verticalement */
+            margin: 0;
+        }
+
+        .container {
+            background-color:white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 100%; /* Prend toute la largeur possible */
+            max-width: 800px; /* Limite la largeur à 800px */
+        }
+
+        h1, h2 {
+            color:green;
+            text-align: center;
+        }
+
+        .skill-btn {
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .skill-btn:hover {
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+
+        #stage-options {
+            background-color: #f1f1f1;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .alert {
+            background-color: #ffc107;
+            color: #856404;
+            border-radius: 5px;
+            padding: 10px;
+            font-weight: bold;
+        }
+
+        .form-group label {
+            font-weight: bold;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="container mt-1">
+        <h1>Assistants d'emplois et stages</h1>
+        <form action="/process_skills" method="POST">
+            <h2 class="mt-4">Entrez vos compétences :</h2>
+            <!-- Champ de saisie large pour les compétences avec marges -->
+            <div class="form-group">
+                <label for="skills">Compétences:</label>
+                <input type="text" id="skills" name="skills" class="form-control" placeholder="Ex: Python, Data Scientist, Machine Learning" required 
+                    style="height: 20px; font-size: 20px; margin-top: 10px; margin-bottom: 10px;">
+            </div>
+
+
+            <!-- Champ caché pour les compétences sélectionnées -->
+            <input type="hidden" name="skills" id="selected-skills">
+            <h2 class="mt-4"></h2>
+    <div class="form-group">
+    <label for="request_type">Type de Recommandation :</label>
+    <input type="text" id="request_type" name="request_type" class="form-control" placeholder="Entrez 'stage' ou 'emploi'" required
+    style="height: 20px; font-size: 20px; margin-top: 10px; margin-bottom: 10px;">
+</div>
+
+<div id="stage-options" style="display: none;">
+    <h3>Type de Stage :</h3>
+    <label for="stage_type">Sélectionnez le type de Stage :</label>
+    <select id="stage_type" name="stage_type" class="form-control">
+        <option value="été">Stage d'Été</option>
+        <option value="pfe">Stage PFE</option>
+    </select>
+</div>
+
+            
+
+<!-- Container pour centrer le bouton -->
+<div class="text-end m-5">
+    <button type="submit" class="btn btn-success">Rechercher</button>
+</div>
+
+        </form>
+    </div>
+
+    <script>
+        
+        // Gestion des boutons de compétences
+        const skillButtons = document.querySelectorAll('.skill-btn');
+        const selectedSkillsInput = document.getElementById('selected-skills');
+        let selectedSkills = [];
+
+        skillButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const skill = button.getAttribute('data-skill');
+
+                if (selectedSkills.includes(skill)) {
+                    // Supprimer la compétence si elle est déjà sélectionnée
+                    selectedSkills = selectedSkills.filter(s => s !== skill);
+                    button.classList.remove('btn-success'); // Réinitialiser le style
+                } else {
+                    // Ajouter la compétence si elle n'est pas déjà sélectionnée
+                    selectedSkills.push(skill);
+                    button.classList.add('btn-success'); // Marquer la sélection
+                }
+
+                // Mettre à jour l'input caché avec les compétences sélectionnées
+                selectedSkillsInput.value = selectedSkills.join(',');
+            });
+        });
+
+        // Afficher ou masquer les options de type de stage
+     // Récupérer l'élément du champ de saisie pour le type de recommandation
+const requestTypeInput = document.getElementById('request_type');
+// Récupérer l'élément des options de type de stage
+const stageOptions = document.getElementById('stage-options');
+
+// Écouter l'événement de saisie dans le champ 'request_type'
+requestTypeInput.addEventListener('input', () => {
+    // Si l'utilisateur saisit "stage", afficher les options de type de stage
+    if (requestTypeInput.value.toLowerCase() === 'stage') {
+        stageOptions.style.display = 'block';
+    } else {
+        // Sinon, masquer les options de type de stage
+        stageOptions.style.display = 'none';
+    }
+});
+
+    </script>
+
+    <!-- Lien vers Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-vH8yXre25OKgFe4ISwqg5NxoDccXr+G6V0eUjNbfUowf/7Cq6X7tDKz79wV5T9jY" crossorigin="anonymous"></script>
+</body>
+</html>
